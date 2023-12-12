@@ -1,6 +1,6 @@
 import {z} from "zod";
 
-export const TReviewSchema = z.object({
+export const ReviewValidationSchema = z.object({
   courseId: z.string({
     required_error: "courseId is required",
     invalid_type_error: "courseId must be string",

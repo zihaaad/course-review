@@ -1,6 +1,6 @@
 import {NextFunction, Request, Response} from "express";
 import {CourseServices} from "./course.service";
-import {courseSchema} from "./course.validation";
+import {courseSchema, updateCourseSchema} from "./course.validation";
 const createCourse = async (
   req: Request,
   res: Response,
@@ -38,7 +38,28 @@ const getAllCourses = async (
   }
 };
 
+const updateCourse = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const {courseId} = req.params;
+    const zodParsedData = updateCourseSchema.parse(req.body);
+    const result = await CourseServices.updateCourse(courseId, zodParsedData);
+    res.status(200).json({
+      success: true,
+      statusCode: 200,
+      message: "Courses updated successfully",
+      data: result,
+    });
+  } catch (error: any) {
+    next(error);
+  }
+};
+
 export const CourseControllers = {
   createCourse,
   getAllCourses,
+  updateCourse,
 };

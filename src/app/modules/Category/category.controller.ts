@@ -26,7 +26,7 @@ const createCategroy = async (req: Request, res: Response) => {
 const getAllCategories = async (req: Request, res: Response) => {
   try {
     const result = await CategoryServices.getAllCategories();
-    res.status(201).json({
+    res.status(200).json({
       success: true,
       statusCode: 200,
       message: "Categories retrieved successfully",

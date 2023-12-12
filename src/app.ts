@@ -2,6 +2,8 @@ import express from "express";
 import cors from "cors";
 import {CategoryRoutes} from "./app/modules/Category/category.route";
 import {CourseRoutes} from "./app/modules/Course/course.route";
+import globalErrorHandler from "./app/middlewares/globalErrorHandler";
+import notFound from "./app/middlewares/notFound";
 
 const app = express();
 
@@ -18,5 +20,8 @@ app.get("/", (req, res) => {
     message: "server is running",
   });
 });
+
+app.use(notFound);
+app.use(globalErrorHandler);
 
 export default app;

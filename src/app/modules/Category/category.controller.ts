@@ -1,8 +1,12 @@
-import {Request, Response} from "express";
+import {NextFunction, Request, Response} from "express";
 import {CategoryServices} from "./category.service";
 import {categoryValidations} from "./category.validation";
 
-const createCategroy = async (req: Request, res: Response) => {
+const createCategroy = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   try {
     const zodParsedData = categoryValidations.categoryValidationSchema.parse(
       req.body
@@ -15,15 +19,15 @@ const createCategroy = async (req: Request, res: Response) => {
       data: result,
     });
   } catch (error: any) {
-    res.send({
-      success: false,
-      message: error.message || "something went wrong!",
-      error,
-    });
+    next(error);
   }
 };
 
-const getAllCategories = async (req: Request, res: Response) => {
+const getAllCategories = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   try {
     const result = await CategoryServices.getAllCategories();
     res.status(200).json({
@@ -33,11 +37,7 @@ const getAllCategories = async (req: Request, res: Response) => {
       data: result,
     });
   } catch (error: any) {
-    res.send({
-      success: false,
-      message: error.message || "something went wrong!",
-      error,
-    });
+    next(error);
   }
 };
 

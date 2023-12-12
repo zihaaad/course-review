@@ -1,7 +1,11 @@
-import {Request, Response} from "express";
+import {NextFunction, Request, Response} from "express";
 import {CourseServices} from "./course.service";
 import {courseSchema} from "./course.validation";
-const createCourse = async (req: Request, res: Response) => {
+const createCourse = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   try {
     const zodParsedData = courseSchema.parse(req.body);
     const result = await CourseServices.createCourse(zodParsedData);
@@ -12,15 +16,15 @@ const createCourse = async (req: Request, res: Response) => {
       data: result,
     });
   } catch (error: any) {
-    res.send({
-      success: false,
-      message: error.message || "something went wrong!",
-      error,
-    });
+    next(error);
   }
 };
 
-const getAllCourses = async (req: Request, res: Response) => {
+const getAllCourses = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   try {
     const result = await CourseServices.getAllCourses();
     res.status(200).json({
@@ -30,11 +34,7 @@ const getAllCourses = async (req: Request, res: Response) => {
       data: result,
     });
   } catch (error: any) {
-    res.send({
-      success: false,
-      message: error.message || "something went wrong!",
-      error,
-    });
+    next(error);
   }
 };
 

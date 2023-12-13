@@ -2,7 +2,7 @@ import {Schema, model} from "mongoose";
 import {TCourse, TCourseDetails, TTag} from "./course.interface";
 
 const tagSchema = new Schema<TTag>({
-  name: {type: String, unique: true, required: true},
+  name: {type: String, required: true},
   isDeleted: {type: Boolean, default: false},
 });
 

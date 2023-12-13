@@ -1,6 +1,7 @@
 import {TCourse} from "./course.interface";
 import moment from "moment";
 import {Course} from "./course.model";
+import {Review} from "../Review/review.model";
 
 const createCourse = async (payload: TCourse) => {
   const endDate = moment(payload.endDate);
@@ -57,8 +58,17 @@ const updateCourse = async (id: string, payload: Partial<TCourse>) => {
   return result;
 };
 
+const courseWithReviews = async (courseId: string) => {
+  const course = await Course.findById(courseId);
+  const reviews = await Review.find({courseId});
+
+  const result = {course, reviews};
+  return result;
+};
+
 export const CourseServices = {
   createCourse,
   getAllCourses,
   updateCourse,
+  courseWithReviews,
 };

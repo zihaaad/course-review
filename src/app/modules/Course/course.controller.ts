@@ -58,8 +58,28 @@ const updateCourse = async (
   }
 };
 
+const courseWithReviews = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const {courseId} = req.params;
+    const result = await CourseServices.courseWithReviews(courseId);
+    res.status(200).json({
+      success: true,
+      statusCode: 200,
+      message: "Course and Reviews retrieved successfully",
+      data: result,
+    });
+  } catch (error: any) {
+    next(error);
+  }
+};
+
 export const CourseControllers = {
   createCourse,
   getAllCourses,
   updateCourse,
+  courseWithReviews,
 };

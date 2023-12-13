@@ -1,45 +1,25 @@
-import {NextFunction, Request, Response} from "express";
 import {CategoryServices} from "./category.service";
-import {categoryValidations} from "./category.validation";
+import catchAsync from "../../utilities/catchAsync";
+import sendResponse from "../../utilities/sendResponse";
 
-const createCategroy = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
-  try {
-    const zodParsedData = categoryValidations.categoryValidationSchema.parse(
-      req.body
-    );
-    const result = await CategoryServices.createCategroy(zodParsedData);
-    res.status(201).json({
-      success: true,
-      statusCode: 201,
-      message: "Category Created successfully",
-      data: result,
-    });
-  } catch (error: any) {
-    next(error);
-  }
-};
+const createCategroy = catchAsync(async (req, res) => {
+  const result = await CategoryServices.createCategroy(req.body);
 
-const getAllCategories = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
-  try {
-    const result = await CategoryServices.getAllCategories();
-    res.status(200).json({
-      success: true,
-      statusCode: 200,
-      message: "Categories retrieved successfully",
-      data: result,
-    });
-  } catch (error: any) {
-    next(error);
-  }
-};
+  sendResponse(res, {
+    statusCode: 201,
+    message: "Category created successfully",
+    data: result,
+  });
+});
+
+const getAllCategories = catchAsync(async (req, res) => {
+  const result = await CategoryServices.getAllCategories();
+  sendResponse(res, {
+    statusCode: 200,
+    message: "Categories retrived successfully",
+    data: result,
+  });
+});
 
 export const CategoryControllers = {
   createCategroy,

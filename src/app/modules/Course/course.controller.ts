@@ -1,81 +1,43 @@
-import {NextFunction, Request, Response} from "express";
 import {CourseServices} from "./course.service";
-import {courseSchema, updateCourseSchema} from "./course.validation";
-const createCourse = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
-  try {
-    const zodParsedData = courseSchema.parse(req.body);
-    const result = await CourseServices.createCourse(zodParsedData);
-    res.status(201).json({
-      success: true,
-      statusCode: 201,
-      message: "Course created successfully",
-      data: result,
-    });
-  } catch (error: any) {
-    next(error);
-  }
-};
+import sendResponse from "../../utilities/sendResponse";
+import catchAsync from "../../utilities/catchAsync";
+const createCourse = catchAsync(async (req, res) => {
+  const result = await CourseServices.createCourse(req.body);
+  sendResponse(res, {
+    statusCode: 200,
+    message: "Course created successfully",
+    data: result,
+  });
+});
+const getAllCourses = catchAsync(async (req, res) => {
+  const result = await CourseServices.getAllCourses();
 
-const getAllCourses = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
-  try {
-    const result = await CourseServices.getAllCourses();
-    res.status(200).json({
-      success: true,
-      statusCode: 200,
-      message: "Courses retrieved successfully",
-      data: result,
-    });
-  } catch (error: any) {
-    next(error);
-  }
-};
+  sendResponse(res, {
+    statusCode: 200,
+    message: "Courses retrieved successfully",
+    data: result,
+  });
+});
 
-const updateCourse = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
-  try {
-    const {courseId} = req.params;
-    const zodParsedData = updateCourseSchema.parse(req.body);
-    const result = await CourseServices.updateCourse(courseId, zodParsedData);
-    res.status(200).json({
-      success: true,
-      statusCode: 200,
-      message: "Courses updated successfully",
-      data: result,
-    });
-  } catch (error: any) {
-    next(error);
-  }
-};
+const updateCourse = catchAsync(async (req, res) => {
+  const {courseId} = req.params;
+  const result = await CourseServices.updateCourse(courseId, req.body);
+  sendResponse(res, {
+    statusCode: 200,
+    message: "Course updated successfully",
+    data: result,
+  });
+});
 
-const courseWithReviews = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
-  try {
-    const {courseId} = req.params;
-    const result = await CourseServices.courseWithReviews(courseId);
-    res.status(200).json({
-      success: true,
-      statusCode: 200,
-      message: "Course and Reviews retrieved successfully",
-      data: result,
-    });
-  } catch (error: any) {
-    next(error);
-  }
-};
+const courseWithReviews = catchAsync(async (req, res) => {
+  const {courseId} = req.params;
+  const result = await CourseServices.courseWithReviews(courseId);
+  sendResponse(res, {
+    statusCode: 200,
+    message: "Course and Reviews retrieved successfully",
+    data: result,
+  });
+});
 
 export const CourseControllers = {
   createCourse,

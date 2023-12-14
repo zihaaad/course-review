@@ -4,6 +4,9 @@ import {Course} from "./course.model";
 import {Review} from "../Review/review.model";
 
 const createCourse = async (payload: TCourse) => {
+  if (!(await Course.isCategoryExists(String(payload.categoryId)))) {
+    throw new Error("CategoryId is not Valid.");
+  }
   const endDate = moment(payload.endDate);
   const startDate = moment(payload.startDate);
 
@@ -16,17 +19,101 @@ const createCourse = async (payload: TCourse) => {
   return result;
 };
 
-const getAllCourses = async () => {
-  const result = await Course.find();
+const getAllCourses = async (query: Record<string, unknown>) => {
+  const page = Number(query?.page) || 1;
+  const limit = Number(query?.limit) || 10;
+  const skip = (page - 1) * limit;
+
+  const allowedSortByFields = [
+    "title",
+    "price",
+    "startDate",
+    "endDate",
+    "language",
+    "durationInWeeks",
+  ];
+
+  const sortBy = allowedSortByFields.includes(query.sortBy as string)
+    ? (query.sortBy as string)
+    : "title";
+
+  // Query Object
+  const queryObj: Record<string, unknown> = {};
+
+  if (query.minPrice || query.maxPrice) {
+    queryObj.price = {};
+    if (query.minPrice) {
+      queryObj.price.$gte = parseFloat(String(query.minPrice));
+    }
+    if (query.maxPrice) {
+      queryObj.price.$lte = parseFloat(String(query.maxPrice));
+    }
+  }
+
+  if (query.tags) {
+    queryObj["tags.name"] = query.tags;
+  }
+
+  if (query.startDate && query.endDate) {
+    queryObj.startDate = {$gte: query.startDate, $lte: query.endDate};
+    queryObj.endDate = {$gte: query.startDate, $lte: query.endDate};
+  }
+
+  if (query.language) {
+    queryObj.language = query.language;
+  }
+
+  if (query.provider) {
+    queryObj.provider = query.provider;
+  }
+
+  if (query.durationInWeeks) {
+    queryObj.durationInWeeks = query.durationInWeeks;
+  }
+
+  if (query.level) {
+    queryObj["details.level"] = query.level;
+  }
+
+  const course = await Course.find(queryObj)
+    .skip(skip)
+    .limit(limit)
+    .sort(sortBy);
+
+  const result = {
+    meta: {page, limit, total: course.length},
+    course,
+  };
+
   return result;
 };
 
 const updateCourse = async (id: string, payload: Partial<TCourse>) => {
   const {details, tags, ...remainingCourseData} = payload;
 
+  const endDate = moment(payload.endDate);
+  const startDate = moment(payload.startDate);
+
+  const weeksDuration: number = Math.ceil(
+    endDate.diff(startDate, "weeks", true)
+  );
+
+  remainingCourseData.durationInWeeks = weeksDuration;
+
   const modifiedData: Record<string, unknown> = {
     ...remainingCourseData,
   };
+
+  if (
+    remainingCourseData.categoryId &&
+    !(await Course.isCategoryExists(String(remainingCourseData.categoryId)))
+  ) {
+    throw new Error("CategoryId is not a Valid ID.");
+  }
+
+  if (!(await Course.isCourseExists(id))) {
+    throw new Error("Course Doesn't Exists.");
+  }
 
   if (details && Object.keys(details).length) {
     for (const [key, value] of Object.entries(details)) {
@@ -59,6 +146,9 @@ const updateCourse = async (id: string, payload: Partial<TCourse>) => {
 };
 
 const courseWithReviews = async (courseId: string) => {
+  if (!(await Course.isCourseExists(courseId))) {
+    throw new Error("Course Doesn't Exists.");
+  }
   const course = await Course.findById(courseId);
   const reviews = await Review.find({courseId});
 
@@ -95,7 +185,7 @@ const bestCourse = async () => {
     },
   ]);
 
-  result.averageRating = Number(result.averageRating.toFixed(1));
+  result.averageRating = Number(result?.averageRating?.toFixed(1));
   const {averageRating, reviewCount, ...course} = result;
   return {averageRating, reviewCount, course};
 };

@@ -7,7 +7,7 @@ const createCategroy = async (payload: TCategory) => {
 };
 
 const getAllCategories = async () => {
-  const result = await Category.find();
+  const result = await Category.find().select("-__v");
   return result;
 };
 

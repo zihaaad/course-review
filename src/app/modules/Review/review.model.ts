@@ -1,5 +1,6 @@
 import {Schema, model} from "mongoose";
-import {TReview} from "./review.interface";
+import {TReview, TReviewModel} from "./review.interface";
+import {Course} from "../Course/course.model";
 
 const reviewSchema = new Schema<TReview>({
   courseId: {type: Schema.Types.ObjectId, required: true, ref: "Course"},
@@ -7,4 +8,9 @@ const reviewSchema = new Schema<TReview>({
   review: {type: String, required: true},
 });
 
-export const Review = model<TReview>("Review", reviewSchema);
+reviewSchema.statics.isCourseExists = async (id: string) => {
+  const existingCourse = await Course.findById(id);
+  return existingCourse;
+};
+
+export const Review = model<TReview, TReviewModel>("Review", reviewSchema);

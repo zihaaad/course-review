@@ -23,6 +23,9 @@ const globalErrorHandler: ErrorRequestHandler = (err, req, res, next) => {
     const match = err.message.match(/"([^"]*)"/);
     const extractedMsg = match && match[1];
     errorMessage = `${extractedMsg} is already exists`;
+  } else if (err instanceof Error) {
+    message = "Something went Wrong!";
+    errorMessage = err?.message;
   }
 
   return res.status(500).json({

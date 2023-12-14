@@ -43,10 +43,14 @@ const getAllCourses = async (query: Record<string, unknown>) => {
   if (query.minPrice || query.maxPrice) {
     queryObj.price = {};
     if (query.minPrice) {
-      queryObj.price.$gte = parseFloat(String(query.minPrice));
+      (queryObj.price as Record<string, number>).$gte = parseFloat(
+        String(query.minPrice)
+      );
     }
     if (query.maxPrice) {
-      queryObj.price.$lte = parseFloat(String(query.maxPrice));
+      (queryObj.price as Record<string, number>).$lte = parseFloat(
+        String(query.maxPrice)
+      );
     }
   }
 
